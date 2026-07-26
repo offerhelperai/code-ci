@@ -2,26 +2,8 @@
 name: Reusable Build Desktop Applications
 
 on:
-  workflow_call:
-    inputs:
-      private_repo:
-        description: '私有仓库 (owner/repo)'
-        required: true
-        type: string
-      ref:
-        description: '分支/tag'
-        required: false
-        type: string
-        default: 'main'
-    secrets:
-      PAT_TOKEN:
-        required: true
-      APPLE_ID:
-        required: false
-      APPLE_APP_SPECIFIC_PASSWORD:
-        required: false
-      APPLE_TEAM_ID:
-        required: false
+  push:
+    branches: [ main, master ]
 
 jobs:
   build-windows:
@@ -35,8 +17,7 @@ jobs:
       - name: Checkout private repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.private_repo }}
-          ref: ${{ inputs.ref }}
+          repository: ${{ vars.PRIVATE_REPO }}
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Setup Node.js
@@ -69,8 +50,7 @@ jobs:
       - name: Checkout private repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.private_repo }}
-          ref: ${{ inputs.ref }}
+          repository: ${{ vars.PRIVATE_REPO }}
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Setup Node.js
@@ -109,8 +89,7 @@ jobs:
       - name: Checkout private repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.private_repo }}
-          ref: ${{ inputs.ref }}
+          repository: ${{ vars.PRIVATE_REPO }}
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Setup Node.js
@@ -148,8 +127,7 @@ jobs:
       - name: Checkout private repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.private_repo }}
-          ref: ${{ inputs.ref }}
+          repository: ${{ vars.PRIVATE_REPO }}
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Download all artifacts
