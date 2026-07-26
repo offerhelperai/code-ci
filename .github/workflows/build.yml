@@ -1,0 +1,169 @@
+# 公共仓库: code-moss-client-ci/.github/workflows/reusable-build.yml
+name: Reusable Build Desktop Applications
+
+on:
+  workflow_call:
+    inputs:
+      private_repo:
+        description: '私有仓库 (owner/repo)'
+        required: true
+        type: string
+      ref:
+        description: '分支/tag'
+        required: false
+        type: string
+        default: 'main'
+    secrets:
+      PAT_TOKEN:
+        required: true
+      APPLE_ID:
+        required: false
+      APPLE_APP_SPECIFIC_PASSWORD:
+        required: false
+      APPLE_TEAM_ID:
+        required: false
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - name: Checkout private repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.private_repo }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Windows application
+        run: npm run build:win:full
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: release/*.exe
+          if-no-files-found: error
+
+  build-mac-intel:
+    runs-on: macos-15
+    env:
+      GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - name: Checkout private repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.private_repo }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Clean npm cache and dependencies
+        run: |
+          rm -rf node_modules
+          rm -f package-lock.json
+          npm cache clean --force
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Mac Intel application
+        run: npm run build:mac:x64
+
+      - name: Upload Mac Intel artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-intel-build
+          path: release/*x64.dmg
+          overwrite: false
+
+  build-mac-arm:
+    runs-on: macos-14
+    env:
+      GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+    steps:
+      - name: Checkout private repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.private_repo }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Clean npm cache and dependencies
+        run: |
+          rm -rf node_modules
+          rm -f package-lock.json
+          npm cache clean --force
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Mac ARM application
+        run: npm run build:mac:arm64
+
+      - name: Upload Mac ARM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-arm-build
+          path: release/*arm64.dmg
+          overwrite: false
+
+  release:
+    needs: [build-windows, build-mac-intel, build-mac-arm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    steps:
+      - name: Checkout private repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.private_repo }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./release-artifacts
+
+      - name: Create Release and upload assets
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          tag: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          draft: false
+          prerelease: false
+          artifacts: "./release-artifacts/**/*"
+          artifactErrorsFailBuild: true
