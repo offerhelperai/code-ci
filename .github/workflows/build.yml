@@ -31,7 +31,7 @@ jobs:
         run: npm install
 
       - name: Build Windows application
-        run: npm run build:win:full -- --publish never
+        run: npm run build:win:full
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
@@ -71,7 +71,7 @@ jobs:
         run: npm install
 
       - name: Build Mac Intel application
-        run: npm run build:mac:x64 -- --publish never
+        run: npm run build:mac:x64
 
       - name: Upload Mac Intel artifacts
         uses: actions/upload-artifact@v4
@@ -111,7 +111,7 @@ jobs:
         run: npm install
 
       - name: Build Mac ARM application
-        run: npm run build:mac:arm64 -- --publish never
+        run: npm run build:mac:arm64
 
       - name: Upload Mac ARM artifacts
         uses: actions/upload-artifact@v4
