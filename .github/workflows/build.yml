@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ vars.PRIVATE_REPO }}
+          ref: main
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Setup Node.js
@@ -51,6 +52,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ vars.PRIVATE_REPO }}
+          ref: main
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Setup Node.js
@@ -90,6 +92,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ vars.PRIVATE_REPO }}
+          ref: main
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Setup Node.js
@@ -128,6 +131,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ vars.PRIVATE_REPO }}
+          ref: main
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Download all artifacts
