@@ -1,6 +1,5 @@
 # 公共仓库: code-moss-client-ci/.github/workflows/reusable-build.yml
 name: Reusable Build Desktop Applications
-
 on:
   push:
     branches: [ main, master ]
