@@ -3,7 +3,6 @@ name: Reusable Build Desktop Applications
 on:
   push:
     branches: [ main, master ]
-
 jobs:
   build-windows:
     runs-on: windows-latest
