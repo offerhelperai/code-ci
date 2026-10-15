@@ -117,7 +117,6 @@ jobs:
           name: mac-arm-build
           path: release/*arm64.dmg
           overwrite: false
-
   release:
     needs: [build-windows, build-mac-intel, build-mac-arm]
     runs-on: ubuntu-latest
